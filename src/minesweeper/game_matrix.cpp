@@ -4,13 +4,14 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 
 GameCell& GameMatrix::at(int32_t i)
 {
     /* If cell is out of bounds, don't crash. Just increment an unused cell. */
     static GameCell out_of_bounds_cell;
 
-    if (i < 0 || i > this->__matrix_length * this->__matrix_width)
+    if (i < 0 || i >= this->__matrix_length * this->__matrix_width)
         return out_of_bounds_cell;
 
     return this->__cells[i];
@@ -21,10 +22,10 @@ GameCell& GameMatrix::at(int32_t i, int32_t j)
     /* If cell is out of bounds, don't crash. Just increment an unused cell. */
     static GameCell out_of_bounds_cell;
 
-    if (i < 0 || i > this->__matrix_length)
+    if (i < 0 || i >= this->__matrix_length)
         return out_of_bounds_cell;
 
-    if (j < 0 || j > this->__matrix_width)
+    if (j < 0 || j >= this->__matrix_width)
         return out_of_bounds_cell;
 
     return this->__cells[i * this->__matrix_length + j];
@@ -80,7 +81,34 @@ GameMatrix::GameMatrix(size_t matrix_length, size_t matrix_width, size_t num_min
 GameMatrix::~GameMatrix()
 {
     if (this->__cells != nullptr)
-        delete this->__cells;
+        delete [] this->__cells;
+}
+
+void GameMatrix::reveal(int32_t i, int32_t j)
+{
+    if (i < 0 || i >= this->__matrix_length)
+        return;
+
+    if (j < 0 || j >= this->__matrix_length)
+        return;
+
+    GameCell& cur_cell = this->at(i, j);
+    if (cur_cell.revealed())
+        return;
+
+    cur_cell.set_revealed();
+
+    if (cur_cell.is_bomb() || cur_cell.num_surrounding_bombs() > 0)
+        return;
+
+    for (int8_t row = -1; row <= 1; row++)
+    {
+        for (int8_t col = -1; col <= 1; col++)
+        {
+            if (row != 0 || col != 0)
+                this->reveal(i + row, j + col);
+        }
+    }
 }
 
 void GameMatrix::print_matrix()
@@ -89,12 +117,19 @@ void GameMatrix::print_matrix()
     {
         for (size_t j = 0; j < this->__matrix_width; j++)
         {
-            if (this->at(i, j).is_bomb())
-                std::cout << "\033[31m" << 'X' << "\033[0m";
-            else
-                std::cout << std::to_string(this->at(i, j).num_surrounding_bombs());
+            const GameCell& cell = this->at(i, j);
+            std::string to_print = " ";
 
-            std::cout << " ";
+            if (cell.revealed())
+            {
+                if (cell.is_bomb())
+                    to_print = "\033[31mX\033[0m";  /* red X indicating bomb */
+                else
+                    to_print = std::to_string(cell.num_surrounding_bombs());
+            }
+
+            /* Always print fixed-width (3 columns) */
+            std::cout << std::setw(3) << to_print;
         }
 
         std::cout << std::endl;
