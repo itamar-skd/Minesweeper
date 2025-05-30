@@ -17,6 +17,7 @@ class UserInterface
 
     private:
         bool __keep_alive;
+        bool __matrix_revealed;
 };
 
 #endif /* __USER_INTERFACE_H__ */

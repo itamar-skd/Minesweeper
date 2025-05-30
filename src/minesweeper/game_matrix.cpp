@@ -103,16 +103,30 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
     if (j < 0 || j >= this->__matrix_length)
         return RevealOptions::REVEAL_OUT_OF_BOUNDS;
 
-    GameCell& cur_cell = this->at(i, j);
-    if (cur_cell.revealed())
+    static bool first_reveal = true;
+    GameCell* cur_cell = &this->at(i, j);
+
+    if (first_reveal)
+    {
+        while (cur_cell->is_bomb() || cur_cell->num_surrounding_bombs() > 0)
+        {
+            memset(this->__cells, 0, sizeof(GameCell) * this->__matrix_length * this->__matrix_length);
+            this->__init_bombs();
+            cur_cell = &this->at(i, j);
+        }
+
+        first_reveal = false;
+    }
+
+    if (cur_cell->revealed())
         return RevealOptions::REVEAL_OK;
 
-    cur_cell.set_revealed();
+    cur_cell->set_revealed();
 
-    if (cur_cell.is_bomb())
+    if (cur_cell->is_bomb())
         return RevealOptions::REVEAL_BOMB;
 
-    if (cur_cell.num_surrounding_bombs() == 0)
+    if (cur_cell->num_surrounding_bombs() == 0)
     {
         for (int8_t row = -1; row <= 1; row++)
         {

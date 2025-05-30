@@ -3,6 +3,7 @@
 
 UserInterface::UserInterface()
     : __keep_alive(true)
+    , __matrix_revealed(false)
 {}
 
 void UserInterface::__handle_reveal_result(GameMatrix::RevealOptions result)
@@ -15,6 +16,7 @@ void UserInterface::__handle_reveal_result(GameMatrix::RevealOptions result)
             clear();
             GameMatrix::matrix().print_matrix();
             refresh();
+            this->__matrix_revealed = true;
         case GameMatrix::RevealOptions::REVEAL_OUT_OF_BOUNDS:
         default:
             break;
@@ -46,10 +48,16 @@ void UserInterface::run()
             if (getmouse(&event) == OK) {
                 int32_t row = event.y - MATRIX_ROW_START;
                 int32_t col = (event.x + 1) / CELL_SIZE - 1;
-                GameMatrix::RevealOptions res = GameMatrix::matrix().reveal(row, col);
 
-                this->__handle_reveal_result(res);
-                // break; // or handle based on event.bstate
+                if (event.bstate & BUTTON1_CLICKED)
+                {
+                    GameMatrix::RevealOptions res = GameMatrix::matrix().reveal(row, col);
+
+                    this->__handle_reveal_result(res);
+                }
+                else if ((event.bstate & BUTTON3_CLICKED) && this->__matrix_revealed)
+                {
+                }
             }
         }
         else if (ch == 'q')
