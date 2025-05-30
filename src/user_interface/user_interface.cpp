@@ -34,6 +34,7 @@ void UserInterface::init()
     cbreak();
     curs_set(0);
     init_pair(1, COLOR_RED, -1);
+    init_pair(2, COLOR_BLUE, -1);
 }
 
 
@@ -49,14 +50,21 @@ void UserInterface::run()
                 int32_t row = event.y - MATRIX_ROW_START;
                 int32_t col = (event.x + 1) / CELL_SIZE - 1;
 
+                /* explode minefield is left clicked */
                 if (event.bstate & BUTTON1_CLICKED)
                 {
                     GameMatrix::RevealOptions res = GameMatrix::matrix().reveal(row, col);
 
                     this->__handle_reveal_result(res);
                 }
+                /* place flag if right clicked */
                 else if ((event.bstate & BUTTON3_CLICKED) && this->__matrix_revealed)
                 {
+                    GameMatrix::matrix().place_flag(row, col);
+
+                    clear();
+                    GameMatrix::matrix().print_matrix();
+                    refresh();
                 }
             }
         }

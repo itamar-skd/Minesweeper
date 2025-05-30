@@ -118,7 +118,7 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
         first_reveal = false;
     }
 
-    if (cur_cell->revealed())
+    if (cur_cell->revealed() || cur_cell->is_flag())
         return RevealOptions::REVEAL_OK;
 
     cur_cell->set_revealed();
@@ -141,6 +141,21 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
     return RevealOptions::REVEAL_OK;
 }
 
+void GameMatrix::place_flag(int32_t i, int32_t j)
+{
+    if (i < 0 || i >= this->__matrix_length)
+        return;
+
+    if (j < 0 || j >= this->__matrix_length)
+        return;
+
+    GameCell& cell = this->at(i, j);
+    if (cell.revealed())
+        return;
+
+    cell.set_flag(!cell.is_flag());
+}
+
 void GameMatrix::print_matrix()
 {
     move(MATRIX_ROW_START, 0);
@@ -152,9 +167,14 @@ void GameMatrix::print_matrix()
             const GameCell& cell = this->at(i, j);
             std::string to_print = " ";
 
-            if (cell.revealed())
+            if (cell.revealed() || cell.is_flag())
             {
-                if (cell.is_bomb())
+                if (cell.is_flag())
+                {
+                    to_print = "F";
+                    attron(COLOR_PAIR(2));
+                }
+                else if (cell.is_bomb())
                 {
                     to_print = "X";  /* red X indicating bomb */
                     attron(COLOR_PAIR(1));
@@ -167,6 +187,7 @@ void GameMatrix::print_matrix()
             ss << std::setw(CELL_SIZE) << to_print;
             printw("%*s", CELL_SIZE, to_print.c_str());
             attroff(COLOR_PAIR(1));
+            attroff(COLOR_PAIR(2));
         }
 
         printw("\n");
