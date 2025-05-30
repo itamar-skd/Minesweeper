@@ -5,6 +5,20 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <ncurses.h>
+
+GameMatrix::GameMatrix()
+    : __cells(nullptr)
+    , __matrix_length(0)
+    , __matrix_width(0)
+    , __num_minefields(0)
+{}
+
+GameMatrix::~GameMatrix()
+{
+    if (this->__cells != nullptr)
+        delete [] this->__cells;
+}
 
 GameCell& GameMatrix::at(int32_t i)
 {
@@ -65,73 +79,82 @@ void GameMatrix::__init_bombs()
     }
 }
 
-GameMatrix::GameMatrix(size_t matrix_length, size_t matrix_width, size_t num_minefields)
-    : __cells(nullptr)
-    , __matrix_length(matrix_length)
-    , __matrix_width(matrix_width)
-    , __num_minefields(num_minefields)
+void GameMatrix::init(size_t matrix_length, size_t matrix_width, size_t num_minefields)
 {
-
-    const size_t matrix_size = matrix_length * matrix_width;
-    this->__cells = new GameCell[matrix_size];
+    this->__matrix_length = matrix_length;
+    this->__matrix_width = matrix_width;
+    this->__num_minefields = num_minefields;
+    this->__cells = new GameCell[matrix_length * matrix_width];
 
     this->__init_bombs();
 }
 
-GameMatrix::~GameMatrix()
+GameMatrix& GameMatrix::matrix()
 {
-    if (this->__cells != nullptr)
-        delete [] this->__cells;
+    static GameMatrix _matrix;
+    return _matrix;
 }
 
-void GameMatrix::reveal(int32_t i, int32_t j)
+GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
 {
     if (i < 0 || i >= this->__matrix_length)
-        return;
+        return RevealOptions::REVEAL_OUT_OF_BOUNDS;
 
     if (j < 0 || j >= this->__matrix_length)
-        return;
+        return RevealOptions::REVEAL_OUT_OF_BOUNDS;
 
     GameCell& cur_cell = this->at(i, j);
     if (cur_cell.revealed())
-        return;
+        return RevealOptions::REVEAL_OK;
 
     cur_cell.set_revealed();
 
-    if (cur_cell.is_bomb() || cur_cell.num_surrounding_bombs() > 0)
-        return;
+    if (cur_cell.is_bomb())
+        return RevealOptions::REVEAL_BOMB;
 
-    for (int8_t row = -1; row <= 1; row++)
+    if (cur_cell.num_surrounding_bombs() == 0)
     {
-        for (int8_t col = -1; col <= 1; col++)
+        for (int8_t row = -1; row <= 1; row++)
         {
-            if (row != 0 || col != 0)
-                this->reveal(i + row, j + col);
+            for (int8_t col = -1; col <= 1; col++)
+            {
+                if (row != 0 || col != 0)
+                    this->reveal(i + row, j + col);
+            }
         }
     }
+
+    return RevealOptions::REVEAL_OK;
 }
 
 void GameMatrix::print_matrix()
 {
+    move(MATRIX_ROW_START, 0);
     for (size_t i = 0; i < this->__matrix_length; i++)
     {
         for (size_t j = 0; j < this->__matrix_width; j++)
         {
+            std::stringstream ss;
             const GameCell& cell = this->at(i, j);
             std::string to_print = " ";
 
             if (cell.revealed())
             {
                 if (cell.is_bomb())
-                    to_print = "\033[31mX\033[0m";  /* red X indicating bomb */
+                {
+                    to_print = "X";  /* red X indicating bomb */
+                    attron(COLOR_PAIR(1));
+                }
                 else
                     to_print = std::to_string(cell.num_surrounding_bombs());
             }
 
             /* Always print fixed-width (3 columns) */
-            std::cout << std::setw(3) << to_print;
+            ss << std::setw(CELL_SIZE) << to_print;
+            printw("%*s", CELL_SIZE, to_print.c_str());
+            attroff(COLOR_PAIR(1));
         }
 
-        std::cout << std::endl;
+        printw("\n");
     }
 }
