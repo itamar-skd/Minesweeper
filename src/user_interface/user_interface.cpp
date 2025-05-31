@@ -92,13 +92,14 @@ void UserInterface::run()
         int ch = getch();
         if (ch == KEY_MOUSE) {
             if (getmouse(&event) == OK) {
+                GameMatrix::RevealOptions res;
                 int32_t row = event.y - MATRIX_ROW_START - 1;
                 int32_t col = (event.x + 1) / CELL_SIZE - 2;
 
                 /* explode minefield is left clicked */
                 if (event.bstate & BUTTON1_CLICKED)
                 {
-                    GameMatrix::RevealOptions res = GameMatrix::matrix().reveal(row, col);
+                    res = GameMatrix::matrix().reveal(row, col);
 
                     this->__handle_reveal_result(res);
                 }
@@ -113,8 +114,11 @@ void UserInterface::run()
                     this->__check_winner();
                 }
 
-                move(0, 0);
-                printw("Minefields left: %ld", GameMatrix::matrix().num_minefields() - GameMatrix::matrix().num_flags());
+                if (res != GameMatrix::RevealOptions::REVEAL_OUT_OF_BOUNDS)
+                {
+                    move(0, 0);
+                    printw("Minefields left: %ld", GameMatrix::matrix().num_minefields() - GameMatrix::matrix().num_flags());
+                }
             }
         }
         else if (ch == 'q')
