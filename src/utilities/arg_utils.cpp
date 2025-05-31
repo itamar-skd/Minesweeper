@@ -34,11 +34,11 @@ void print_help()
     print_blue("Here are some helpful arguments:\n");
     print_help_argument("matrix_length", "set the matrix length (default: 20)\n");
     print_help_argument("matrix_width", "set the matrix width (default: 20)\n");
-    print_help_argument("num_minefields", "set the number of minefields to be generated (must be smaller than the area, default: 50)\n");
+    print_help_argument("num_mines", "set the number of mines to be generated (must be smaller than the area, default: 50)\n");
 
     print_blue("\nHow to play:\n");
-    printw("Minefields are scattered around the matrix. Your objective is to find them.\n");
-    printw("Cells that do not contain a minefield will be numbered by the number of minefields they're surrounded by, in the 3x3 square surrounding them.\n");
+    printw("Mines are scattered around the matrix. Your objective is to find them.\n");
+    printw("Cells that do not contain a minefield will be numbered by the number of mines they're surrounded by, in the 3x3 square surrounding them.\n");
     printw("Left-clicking a cell will reveal its contents. ");
     print_red("Make sure to only click if you're sure there's no minefield there!\n");
     printw("Right-clicking a cell will place/remove a flag. You should use flags to indicate a minefield in the cell. ");
@@ -66,10 +66,10 @@ void parse_args(std::string arg)
         uint32_t width = get_numerical_argument(arg, strlen("--matrix_width"));
         GameMatrix::matrix().set_matrix_width(width);
     }
-    else if (arg.rfind("--num_minefields") != std::string::npos)
+    else if (arg.rfind("--num_mines") != std::string::npos)
     {
-        uint32_t num_minefields = get_numerical_argument(arg, strlen("--num_minefields"));
-        GameMatrix::matrix().set_num_minefields(num_minefields);
+        uint32_t num_mines = get_numerical_argument(arg, strlen("--num_mines"));
+        GameMatrix::matrix().set_num_mines(num_mines);
     }
 
     refresh();

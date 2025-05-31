@@ -117,7 +117,7 @@ void UserInterface::run()
                 if (res != GameMatrix::RevealOptions::REVEAL_OUT_OF_BOUNDS)
                 {
                     move(0, 0);
-                    printw("Minefields left: %ld", GameMatrix::matrix().num_minefields() - GameMatrix::matrix().num_flags());
+                    printw("Mines left: %ld", GameMatrix::matrix().num_mines() - GameMatrix::matrix().num_flags());
                 }
             }
         }

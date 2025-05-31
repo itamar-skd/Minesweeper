@@ -11,7 +11,7 @@ GameMatrix::GameMatrix()
     : __cells(nullptr)
     , __matrix_length(0)
     , __matrix_width(0)
-    , __num_minefields(0)
+    , __num_mines(0)
     , __num_flags(0)
     , __num_correctly_revealed(0)
 {}
@@ -57,13 +57,13 @@ void GameMatrix::__init_bombs()
         pool.push_back(i);
     }
 
-    /* Shuffle the list to randomize the first this->__num_minefields entries */
+    /* Shuffle the list to randomize the first this->__num_mines entries */
     std::random_device rd;
     std::mt19937 gen(rd());
     std::shuffle(pool.begin(), pool.end(), gen);
 
-    /* Take the first this->__num_minefields entries */
-    std::vector<size_t> bombs(pool.begin(), pool.begin() + this->__num_minefields);
+    /* Take the first this->__num_mines entries */
+    std::vector<size_t> bombs(pool.begin(), pool.begin() + this->__num_mines);
 
     for (const size_t& bomb_index : bombs)
     {
@@ -85,8 +85,8 @@ void GameMatrix::init()
 {
     this->__matrix_length = this->__matrix_length == 0 ? MATRIX_LENGTH_DEFAULT : this->__matrix_length;
     this->__matrix_width = this->__matrix_width == 0 ? MATRIX_WIDTH_DEFAULT : this->__matrix_width;
-    if (this->__num_minefields == 0 || this->__num_minefields >= this->__matrix_length * this->__matrix_width)
-        this->__num_minefields = MATRIX_MINEFIELDS_DEFAULT;
+    if (this->__num_mines == 0 || this->__num_mines >= this->__matrix_length * this->__matrix_width)
+        this->__num_mines = MATRIX_MINES_DEFAULT;
 
     this->__cells = new GameCell[__matrix_length * __matrix_width];
 
@@ -130,7 +130,7 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j, bool check_fl
         return RevealOptions::REVEAL_OK;
 
     /* if the player clicked on an already revealed cell, it means they want to reveal the cells around it. */
-    /* this is only allowed if the player already flagged all of the minefields around the cell. */
+    /* this is only allowed if the player already flagged all of the mines around the cell. */
     if (cur_cell->revealed())
     {
         if (check_flags)

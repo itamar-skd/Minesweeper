@@ -9,7 +9,7 @@
 
 #define MATRIX_LENGTH_DEFAULT 20
 #define MATRIX_WIDTH_DEFAULT 20
-#define MATRIX_MINEFIELDS_DEFAULT 50
+#define MATRIX_MINES_DEFAULT 50
 
 class GameMatrix
 {
@@ -41,14 +41,14 @@ class GameMatrix
     public: /* getters */
         inline size_t matrix_length()   { return this->__matrix_length; }
         inline size_t matrix_width()    { return this->__matrix_width; }
-        inline size_t num_minefields()  { return this->__num_minefields; }
+        inline size_t num_mines()  { return this->__num_mines; }
         inline size_t num_flags()  { return this->__num_flags; }
         inline size_t num_correctly_revealed()  { return this->__num_correctly_revealed; }
 
     public: /* setters */
         inline void set_matrix_length(size_t matrix_length) { this->__matrix_length = matrix_length; }
         inline void set_matrix_width(size_t matrix_width) { this->__matrix_width = matrix_width; }
-        inline void set_num_minefields(size_t num_minefields) { this->__num_minefields = num_minefields; }
+        inline void set_num_mines(size_t num_mines) { this->__num_mines = num_mines; }
 
     public: /* interaction */
         static GameMatrix& matrix();
@@ -60,7 +60,7 @@ class GameMatrix
         GameCell* __cells;
         size_t __matrix_length;
         size_t __matrix_width;
-        size_t __num_minefields;
+        size_t __num_mines;
         size_t __num_flags;
         size_t __num_correctly_revealed;
 };
