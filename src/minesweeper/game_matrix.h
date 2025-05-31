@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 #define CELL_SIZE 3
-#define MATRIX_ROW_START 2
+#define MATRIX_ROW_START 3
 
 #define MATRIX_LENGTH_DEFAULT 20
 #define MATRIX_WIDTH_DEFAULT 20
@@ -42,6 +42,9 @@ class GameMatrix
         inline size_t matrix_length()   { return this->__matrix_length; }
         inline size_t matrix_width()    { return this->__matrix_width; }
         inline size_t num_minefields()  { return this->__num_minefields; }
+        inline size_t num_flags()  { return this->__num_flags; }
+        inline size_t num_correctly_revealed()  { return this->__num_correctly_revealed; }
+
     public: /* setters */
         inline void set_matrix_length(size_t matrix_length) { this->__matrix_length = matrix_length; }
         inline void set_matrix_width(size_t matrix_width) { this->__matrix_width = matrix_width; }
@@ -58,6 +61,8 @@ class GameMatrix
         size_t __matrix_length;
         size_t __matrix_width;
         size_t __num_minefields;
+        size_t __num_flags;
+        size_t __num_correctly_revealed;
 };
 
 #endif /* __GAME_MATRIX_H__ */

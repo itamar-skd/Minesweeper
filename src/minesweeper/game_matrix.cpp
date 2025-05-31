@@ -12,6 +12,8 @@ GameMatrix::GameMatrix()
     , __matrix_length(0)
     , __matrix_width(0)
     , __num_minefields(0)
+    , __num_flags(0)
+    , __num_correctly_revealed(0)
 {}
 
 GameMatrix::~GameMatrix()
@@ -183,6 +185,7 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j, bool check_fl
         }
     }
 
+    this->__num_correctly_revealed++;
     return RevealOptions::REVEAL_OK;
 }
 
@@ -199,6 +202,14 @@ void GameMatrix::place_flag(int32_t i, int32_t j)
         return;
 
     cell.set_flag(!cell.is_flag());
+    if (cell.is_flag())
+    {
+        this->__num_flags++;
+        if (cell.is_bomb())
+            this->__num_correctly_revealed++;
+    }
+    else
+        this->__num_flags--;
 }
 
 void GameMatrix::print_matrix()
@@ -206,8 +217,13 @@ void GameMatrix::print_matrix()
     clear();
     refresh();
     move(MATRIX_ROW_START, 0);
+
+    for (size_t i = 0; i <= this->__matrix_length + 1; i++)
+        printw("%*s", CELL_SIZE, "*");
+
     for (size_t i = 0; i < this->__matrix_length; i++)
     {
+        printw("\n%*s", CELL_SIZE, "*");
         for (size_t j = 0; j < this->__matrix_width; j++)
         {
             std::stringstream ss;
@@ -236,7 +252,9 @@ void GameMatrix::print_matrix()
             attroff(COLOR_PAIR(1));
             attroff(COLOR_PAIR(2));
         }
-
-        printw("\n");
+        printw("%*s", CELL_SIZE, "*");
     }
+    printw("\n");
+    for (size_t i = 0; i <= this->__matrix_length + 1; i++)
+        printw("%*s", CELL_SIZE, "*");
 }

@@ -10,6 +10,7 @@ class UserInterface
         ~UserInterface();
     
     private:
+        void __check_winner();
         void __handle_reveal_result(GameMatrix::RevealOptions result);
     public:
         static void init();
@@ -20,6 +21,7 @@ class UserInterface
     private:
         bool __keep_alive;
         bool __matrix_revealed;
+        bool __player_won;
 };
 
 #endif /* __USER_INTERFACE_H__ */
