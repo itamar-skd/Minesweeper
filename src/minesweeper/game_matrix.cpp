@@ -97,7 +97,7 @@ GameMatrix& GameMatrix::matrix()
     return _matrix;
 }
 
-GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
+GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j, bool check_flags)
 {
     if (i < 0 || i >= this->__matrix_length)
         return RevealOptions::REVEAL_OUT_OF_BOUNDS;
@@ -124,14 +124,53 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
         first_reveal = false;
     }
 
-    if (cur_cell->revealed() || cur_cell->is_flag())
+    if (cur_cell->is_flag())
         return RevealOptions::REVEAL_OK;
+
+    /* if the player clicked on an already revealed cell, it means they want to reveal the cells around it. */
+    /* this is only allowed if the player already flagged all of the minefields around the cell. */
+    if (cur_cell->revealed())
+    {
+        if (check_flags)
+        {
+            RevealOptions reveal_status;
+
+            size_t num_surrounding_flags = 0;
+            for (int8_t row = -1; row <= 1; row++)
+            {
+                for (int8_t col = -1; col <= 1; col++)
+                {
+                    if ((row != 0 || col != 0) && this->at(i + row, j + col).is_flag())
+                        num_surrounding_flags++;
+                }
+            }
+
+            if (num_surrounding_flags >= cur_cell->num_surrounding_bombs())
+            {
+                for (int8_t row = -1; row <= 1; row++)
+                {
+                    for (int8_t col = -1; col <= 1; col++)
+                    {
+                        if ((row != 0 || col != 0) && !this->at(i + row, j + col).is_flag())
+                            if (this->reveal(i + row, j + col, false) == RevealOptions::REVEAL_BOMB)
+                                reveal_status = RevealOptions::REVEAL_BOMB;
+                    }
+                }
+            }
+
+            return reveal_status;
+        }
+
+        return RevealOptions::REVEAL_OK;
+    }
 
     cur_cell->set_revealed();
 
     if (cur_cell->is_bomb())
         return RevealOptions::REVEAL_BOMB;
 
+    /* There is only one case where the cells around the selected cell should be recursively opened */
+    /* and that is if the cell has no bombs around it (safe to open) */
     if (cur_cell->num_surrounding_bombs() == 0)
     {
         for (int8_t row = -1; row <= 1; row++)
@@ -139,7 +178,7 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
             for (int8_t col = -1; col <= 1; col++)
             {
                 if (row != 0 || col != 0)
-                    this->reveal(i + row, j + col);
+                    this->reveal(i + row, j + col, false);
             }
         }
     }

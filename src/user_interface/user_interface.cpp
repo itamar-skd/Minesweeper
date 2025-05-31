@@ -73,8 +73,10 @@ void UserInterface::check_size(size_t num_row, size_t num_col)
 
 void UserInterface::run()
 {
+    static bool started = false;
     MEVENT event;
 
+    print_green("Click anywhere to start.");
     while (this->__keep_alive) {
         int ch = getch();
         if (ch == KEY_MOUSE) {

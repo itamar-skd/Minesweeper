@@ -49,7 +49,7 @@ class GameMatrix
 
     public: /* interaction */
         static GameMatrix& matrix();
-        RevealOptions reveal(int32_t i, int32_t j);
+        RevealOptions reveal(int32_t i, int32_t j, bool check_flags = true);
         void place_flag(int32_t i, int32_t j);
         void print_matrix();
 
