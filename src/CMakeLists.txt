@@ -1,3 +1,4 @@
+add_subdirectory(utilities)
 add_subdirectory(minesweeper)
 add_subdirectory(user_interface)
 add_subdirectory(main)

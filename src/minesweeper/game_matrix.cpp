@@ -36,13 +36,13 @@ GameCell& GameMatrix::at(int32_t i, int32_t j)
     /* If cell is out of bounds, don't crash. Just increment an unused cell. */
     static GameCell out_of_bounds_cell;
 
-    if (i < 0 || i >= this->__matrix_length)
+    if (i < 0 || j < 0)
         return out_of_bounds_cell;
 
-    if (j < 0 || j >= this->__matrix_width)
+    if (i * this->__matrix_width + j >= this->__matrix_length * this->__matrix_width)
         return out_of_bounds_cell;
 
-    return this->__cells[i * this->__matrix_length + j];
+    return this->__cells[i * this->__matrix_width + j];
 }
 
 void GameMatrix::__init_bombs()
@@ -73,18 +73,20 @@ void GameMatrix::__init_bombs()
             for (int8_t j = -1; j <= 1; j++)
             {
                 if (i != 0 || j != 0)
-                    this->at(bomb_index + i * this->__matrix_length + j)++;
+                    this->at(bomb_index + i * this->__matrix_width + j)++;
             }
         }
     }
 }
 
-void GameMatrix::init(size_t matrix_length, size_t matrix_width, size_t num_minefields)
+void GameMatrix::init()
 {
-    this->__matrix_length = matrix_length;
-    this->__matrix_width = matrix_width;
-    this->__num_minefields = num_minefields;
-    this->__cells = new GameCell[matrix_length * matrix_width];
+    this->__matrix_length = this->__matrix_length == 0 ? MATRIX_LENGTH_DEFAULT : this->__matrix_length;
+    this->__matrix_width = this->__matrix_width == 0 ? MATRIX_WIDTH_DEFAULT : this->__matrix_width;
+    if (this->__num_minefields == 0 || this->__num_minefields >= this->__matrix_length * this->__matrix_width)
+        this->__num_minefields = MATRIX_MINEFIELDS_DEFAULT;
+
+    this->__cells = new GameCell[__matrix_length * __matrix_width];
 
     this->__init_bombs();
 }
@@ -100,7 +102,7 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
     if (i < 0 || i >= this->__matrix_length)
         return RevealOptions::REVEAL_OUT_OF_BOUNDS;
 
-    if (j < 0 || j >= this->__matrix_length)
+    if (j < 0 || j >= this->__matrix_width)
         return RevealOptions::REVEAL_OUT_OF_BOUNDS;
 
     static bool first_reveal = true;
@@ -110,7 +112,11 @@ GameMatrix::RevealOptions GameMatrix::reveal(int32_t i, int32_t j)
     {
         while (cur_cell->is_bomb() || cur_cell->num_surrounding_bombs() > 0)
         {
-            memset(this->__cells, 0, sizeof(GameCell) * this->__matrix_length * this->__matrix_length);
+            // memset(this->__cells, 0, sizeof(GameCell) * this->__matrix_length * this->__matrix_length);
+            for (size_t i = 0; i < this->__matrix_length * this->__matrix_width; i++)
+            {
+                this->at(i).clear();
+            }
             this->__init_bombs();
             cur_cell = &this->at(i, j);
         }
@@ -158,6 +164,8 @@ void GameMatrix::place_flag(int32_t i, int32_t j)
 
 void GameMatrix::print_matrix()
 {
+    clear();
+    refresh();
     move(MATRIX_ROW_START, 0);
     for (size_t i = 0; i < this->__matrix_length; i++)
     {

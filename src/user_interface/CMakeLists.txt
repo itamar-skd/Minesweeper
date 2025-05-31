@@ -13,6 +13,7 @@ include_directories(${CURSES_INCLUDE_DIR})
 
 target_link_libraries(user-interface
     PRIVATE
+        utilities
         game-matrix
         ${CURSES_LIBRARIES}
 )

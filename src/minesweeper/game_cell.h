@@ -16,6 +16,7 @@ class GameCell
         inline uint8_t num_surrounding_bombs() const { return this->__num_surrounding_bombs; }
 
     public: /* setters */
+        inline void clear() { this->__revealed = 0; this->__is_bomb = 0; this->__is_flag = 0; this->__num_surrounding_bombs = 0; }
         inline void set_revealed() { this->__revealed = true; }
         inline void set_bomb() { this->__is_bomb = true; }
         inline void set_flag(bool is_flag) { this->__is_flag = is_flag; }

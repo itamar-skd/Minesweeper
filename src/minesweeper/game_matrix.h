@@ -7,6 +7,10 @@
 #define CELL_SIZE 3
 #define MATRIX_ROW_START 2
 
+#define MATRIX_LENGTH_DEFAULT 20
+#define MATRIX_WIDTH_DEFAULT 20
+#define MATRIX_MINEFIELDS_DEFAULT 50
+
 class GameMatrix
 {
     public:
@@ -28,12 +32,20 @@ class GameMatrix
         GameCell& at(int32_t i);
         GameCell& at(int32_t i, int32_t j);
 
-    /* initialization */
-    private:
+    private: /* initialization */
         void __init_bombs();
-    
+
     public:
-        void init(size_t matrix_length, size_t matrix_width, size_t num_minefields);
+        void init();
+
+    public: /* getters */
+        inline size_t matrix_length()   { return this->__matrix_length; }
+        inline size_t matrix_width()    { return this->__matrix_width; }
+        inline size_t num_minefields()  { return this->__num_minefields; }
+    public: /* setters */
+        inline void set_matrix_length(size_t matrix_length) { this->__matrix_length = matrix_length; }
+        inline void set_matrix_width(size_t matrix_width) { this->__matrix_width = matrix_width; }
+        inline void set_num_minefields(size_t num_minefields) { this->__num_minefields = num_minefields; }
 
     public: /* interaction */
         static GameMatrix& matrix();

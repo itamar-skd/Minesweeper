@@ -7,12 +7,14 @@ class UserInterface
 {
     public:
         UserInterface();
-        ~UserInterface() = default;
+        ~UserInterface();
     
     private:
         void __handle_reveal_result(GameMatrix::RevealOptions result);
     public:
-        void init();
+        static void init();
+        static void cleanup();
+        static void check_size(size_t num_row, size_t num_col);
         void run();
 
     private:
